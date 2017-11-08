@@ -1,16 +1,20 @@
-<?php 
+<?php
+session_start();
+?>
 
-if(isset($_GET['downloadExcel'])){
+<?php
+
+if(isset($_SESSION['ans']) && !empty($_SESSION['ans'])){
 	header("Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, charset=utf-8;");
 	header("Content-Disposition: attachment; filename=" . 'dsf.xls');
   ?>
-  <table border="1" cellpadding="5" cellspacing="0" width="100%" style="text-align: left;">
+<table border="1" cellpadding="5" cellspacing="0" width="100%" style="text-align: left;">
   <tbody>
     <tr>
       <th style="text-align: left;">Email</th>
-      <td>myemail@gmail.com</td>
+      <td><?php echo $_SESSION['user_data']->data->user_email; ?></td>
     </tr>
-    <tr>
+   <!--  <tr>
       <th style="text-align: left;">Year Taken</th>
       <td>2017</td>
     </tr>
@@ -74,215 +78,295 @@ if(isset($_GET['downloadExcel'])){
     <tr>
       <th style="text-align: left;">Primary Neighbourhood Today </th>
       <td>Metrotown</td>
-    </tr>
+    </tr> -->
   </tbody>
-</table>
+</table> 
 <br>
-<table border="1" cellpadding="5" cellspacing="0">
+<table width="600" border="1" cellpadding="5" cellspacing="0">
   <tbody>
-    <tr>
-      <td>1A</td>
-    </tr>
-    <tr>
-      <td>1A</td>
-    </tr>
-    <tr>
-      <td>1A</td>
-    </tr>
-    <tr>
-      <td>1A</td>
-    </tr>
-    <tr>
-      <td>1A</td>
-    </tr>
+<?php 
+
+foreach ($_SESSION['ans'] as $key => $value) {
+		$arr = explode("-", $value);
+?>
+  	<tr>
+  		<td><?php echo $arr[0]; ?></td>
+  		<td>.</td>
+  	</tr>
+  
+<?php 
+	}
+ ?>
   </tbody>
 </table>
 
 
 <?php
+$_SESSION['ans'] = '';
+
+
+
+
+?>
+<?php
 exit();
+?>
+
+<script>
+// self.location = "<?php echo  get_permalink(); ?>";	
+//     var redirectWindow = window.open('<?php echo  get_permalink(); ?>', '_blank');
+//     redirectWindow.location;     	
+
+// window.location.replace("<?php echo  get_permalink(); ?>`");
+</script>
+
+
+
+<?php
+
 }
-  ?>
+
+?>
+
+
+
+
 
 <?php 
 
-
-
 function show_form_to_questionair($attr) {
+
+
+$current_user = '';
+if (is_user_logged_in()){
+		 $current_user = wp_get_current_user();
+}
+
+
+if(isset($_POST['ans']) && !empty($_POST['ans'])){
+
+	$_SESSION['ans'] = $_POST['ans'];
+	$_SESSION['user_data'] = $current_user;
+	$_SESSION['quiz_id'] = $_POST['quiz_id'];
+
+	$qs = $ans = $ovrall = '';
+	foreach ($_POST['ans'] as $key => $value) {
+		$arr = explode("-", $value);
+		$overall .= $arr[0] . ', ';
+		$qs .= $arr[1] . ', ';
+		$ans .= $arr[2] . ', ';
+	}
+
+	global $wpdb;
+	$user_answers = $wpdb->prefix . 'user_answers'; 
+	$quiz_id = $_POST['quiz_id'];
+
+
+$user_id = $current_user->data->id;
+
+	$wpdb->query("INSERT INTO $user_answers 
+					(`user_id`,`questions`, `quiz_id`, `answers`, `quiz_result`) 
+					VALUES 
+					('$user_id','$qs', '$quiz_id', '$ans', '$overall')");
+
+
+?>
+
+<script>
+	window.location = '<?php echo  get_permalink(); ?>';        	
+</script>
+<?php
+
+
+}
+	
+
+
+
+
+
+
 if(!isset($attr) || empty($attr)) {
 	echo '<h2>Admin kindly choose a Questionair to show. likewise ([formQuestion <i>questionair="5"</i>]) </h2>';
 }else {
 	?>
+
+
+<form action="<?php echo get_permalink(); ?>?downloadExcel" target="_blank" method="POST" >
+<div class="info_form">
+	
+</div>
+
+
 <div class="quiz_container">
 <style>
-div#qResult-table h4 {
-    font-size: 20px;
-    font-weight: 600;
-    font-size: 18px !important;
-    margin: 0;
-}
-
-div#qResult-table p {
-    font-size: 14px;
-    margin-bottom: 25px;
-}
-.quiz_ul input {
-    width: 20px;
-    height: 20px;
-    vertical-align: text-bottom !important;
-}
-.quiz_ul label {
-    overflow: hidden;
-}
-
-.span1 {
-    width: 8%;
-    float: left;
-    display: block;
-}
-
-.span2 {
-    float: left;
-    width: 92%;
-    display: block;
-}
-.quiz_container *,.quiz_container {
-    font-family: 'Open Sans',sans-serif,Arial;
-}
-	.btn-two {
-    display: block;
-    background: black;
-    color: white;
-    font-weight: 600;
-    padding: 10px;
-    transition: all 0.4s;
-    cursor: pointer;
-    text-align: center;
-    text-transform: capitalize;
-    border: black 1px solid;
-    max-width: 200px;
-    margin: auto;
+	div#qResult-table h4 {
+	    font-size: 20px;
+	    font-weight: 600;
+	    font-size: 18px !important;
+	    margin: 0;
 	}
-div#qResult-table {
-    border-top: 1px solid #d5d5d5;
-    padding-top: 21px;
-}
-	.btn-two:hover,a.btn-two:hover,a.btn-two:active {
-    background: white;
-    color: black !important;
-    font-weight: 600;
-    text-decoration: none !important;
-}
-	.quiz_container {    
-	background: #f7f7f7;
-    border: 1px solid #d5d5d5;
-    border-radius: 4px;
-    padding: 20px;
-    -webkit-box-shadow: 0 5px 8px rgba(0,0,0,.1);
-    -moz-box-shadow: 0 5px 8px rgba(0,0,0,.1);
-    box-shadow: 0 5px 8px rgba(0,0,0,.1);
-}
 
-.quiz_intro-h {
-    color: #3b3b3b;
-    line-height: 0.8;
-    margin-bottom: 10px;
-    margin: 0 0 20px;
-    padding: 0 0 20px;
-    font-size: 32px !important;
-    line-height: 1 !important;
-    font-weight: 500;
-    border-bottom: 1px solid #e5e5e5;
-}
+	div#qResult-table p {
+	    font-size: 14px;
+	    margin-bottom: 25px;
+	}
+	.quiz_ul input {
+	    width: 20px;
+	    height: 20px;
+	    vertical-align: text-bottom !important;
+	}
+	.quiz_ul label {
+	    overflow: hidden;
+	}
 
-.quiz_ul {
-    list-style-type: none;
-    margin-left: 20px;
-    padding: 0;
-    margin-bottom: 30px !important
-}
-.quiz_q {
-    color: black;
-    width: 100%;
-    font-size: 18px !important;
-    margin: 6px 0;
-    line-height: 1.5 !important;
-    margin-bottom: 15px;
-    margin-top: 5px;
-}
+	.span1 {
+	    width: 8%;
+	    float: left;
+	    display: block;
+	}
 
-.quiz_ul label input {
-    vertical-align: inherit;
-}
+	.span2 {
+	    float: left;
+	    width: 92%;
+	    display: block;
+	}
+	.quiz_container *,.quiz_container {
+	    font-family: 'Open Sans',sans-serif,Arial;
+	}
+		.btn-two {
+	    display: block;
+	    background: black;
+	    color: white;
+	    font-weight: 600;
+	    padding: 10px;
+	    transition: all 0.4s;
+	    cursor: pointer;
+	    text-align: center;
+	    text-transform: capitalize;
+	    border: black 1px solid;
+	    max-width: 200px;
+	    margin: auto;
+		}
+	div#qResult-table {
+	    border-top: 1px solid #d5d5d5;
+	    padding-top: 21px;
+	}
+		.btn-two:hover,a.btn-two:hover,a.btn-two:active {
+	    background: white;
+	    color: black !important;
+	    font-weight: 600;
+	    text-decoration: none !important;
+	}
+		.quiz_container {    
+		background: #f7f7f7;
+	    border: 1px solid #d5d5d5;
+	    border-radius: 4px;
+	    padding: 20px;
+	    -webkit-box-shadow: 0 5px 8px rgba(0,0,0,.1);
+	    -moz-box-shadow: 0 5px 8px rgba(0,0,0,.1);
+	    box-shadow: 0 5px 8px rgba(0,0,0,.1);
+	}
 
-.quiz_ul label {
-    display: block;
-    margin-bottom: 0.5em;
-    color: #3b3b3b;
-    cursor: pointer;
-    vertical-align: middle;
-    font-size: 14px;
-    text-transform: none;
-    font-weight: 400;
-}
-.quiz_intro-p {
-    margin-bottom: 4px;
-}
-.introf {
-    display: none;
-    font-weight: bold;
-    text-decoration: underline;
-    font-size: 15px;
-    color: #333;
-}
+	.quiz_intro-h {
+	    color: #3b3b3b;
+	    line-height: 0.8;
+	    margin-bottom: 10px;
+	    margin: 0 0 20px;
+	    padding: 0 0 20px;
+	    font-size: 32px !important;
+	    line-height: 1 !important;
+	    font-weight: 500;
+	    border-bottom: 1px solid #e5e5e5;
+	}
 
-.introf:first-child {
-    display: block;
-    font-size: 18px !important;
-    font-weight: 600;
-}
+	.quiz_ul {
+	    list-style-type: none;
+	    margin-left: 20px;
+	    padding: 0;
+	    margin-bottom: 30px !important
+	}
+	.quiz_q {
+	    color: black;
+	    width: 100%;
+	    font-size: 18px !important;
+	    margin: 6px 0;
+	    line-height: 1.5 !important;
+	    margin-bottom: 15px;
+	    margin-top: 5px;
+	}
 
-.quiz_q {
-    font-weight: 600;
-}
+	.quiz_ul label input {
+	    vertical-align: inherit;
+	}
 
-/* progress bar */
-.progress {
-    position: relative;
-    height: 20px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    -webkit-box-shadow: inset 0 0px 3px 1px rgba(0,0,0,.1);
-    box-shadow: inset 0 0px 3px 1px rgba(0,0,0,.1);
-}
-.progress-bar {
-    float: left;
-    width: 0;
-    height: 100%;
-    font-size: 12px;
-    line-height: 20px;
-    color: #fff;
-    text-align: center;
-    background-color: #337ab7;
-    -webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
-    -webkit-transition: width .6s ease;
-    -o-transition: width .6s ease;
-    transition: width .6s ease;
-}
-.progress_completed {
-    position: absolute;
-    color: #337ab7;
-    text-align: center;
-    width: 100%;
-    display: block;
-    line-height: 1;
-    text-shadow: 1px 1px white;
-}
+	.quiz_ul label {
+	    display: block;
+	    margin-bottom: 0.5em;
+	    color: #3b3b3b;
+	    cursor: pointer;
+	    vertical-align: middle;
+	    font-size: 14px;
+	    text-transform: none;
+	    font-weight: 400;
+	}
+	.quiz_intro-p {
+	    margin-bottom: 4px;
+	}
+	.introf {
+	    display: none;
+	    font-weight: bold;
+	    text-decoration: underline;
+	    font-size: 15px;
+	    color: #333;
+	}
+
+	.introf:first-child {
+	    display: block;
+	    font-size: 18px !important;
+	    font-weight: 600;
+	}
+
+	.quiz_q {
+	    font-weight: 600;
+	}
+
+	/* progress bar */
+	.progress {
+	    position: relative;
+	    height: 20px;
+	    margin-bottom: 20px;
+	    overflow: hidden;
+	    background-color: #f5f5f5;
+	    border-radius: 4px;
+	    -webkit-box-shadow: inset 0 0px 3px 1px rgba(0,0,0,.1);
+	    box-shadow: inset 0 0px 3px 1px rgba(0,0,0,.1);
+	}
+	.progress-bar {
+	    float: left;
+	    width: 0;
+	    height: 100%;
+	    font-size: 12px;
+	    line-height: 20px;
+	    color: #fff;
+	    text-align: center;
+	    background-color: #337ab7;
+	    -webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+	    box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+	    -webkit-transition: width .6s ease;
+	    -o-transition: width .6s ease;
+	    transition: width .6s ease;
+	}
+	.progress_completed {
+	    position: absolute;
+	    color: #337ab7;
+	    text-align: center;
+	    width: 100%;
+	    display: block;
+	    line-height: 1;
+	    text-shadow: 1px 1px white;
+	}
 </style>
-
 <div id="ajax-response"></div>
 
 <?php
@@ -296,11 +380,11 @@ div#qResult-table {
 
 	$quiz_id = $attr['questionair'];
 ?>
-<div class="progress">
-  	 <span class="progress_completed">0%</span>
-  <div class="progress-bar" style="width:0%">
-  </div>
-</div>
+	<div class="progress">
+	  	 <span class="progress_completed">0%</span>
+		  <div class="progress-bar" style="width:0%">
+		  </div>
+	</div>
 <div class="quiz_div-1">
 
 <?php
@@ -343,21 +427,30 @@ $i++;
 	$ans = "SELECT  a.answer , a.id, a.mark FROM $answers a where a.q_id = ". $row -> id;
 $ansResult = $wpdb->get_results($ans);
 ?>
-<input type="hidden" name="ques_id" value="<?= $row -> id; ?>">
+
+<input type="hidden" name="quiz_id" value="<?= $quiz_id ?>">
+<!-- <input type="hidden" name="ques_id" value="<?= $row -> id; ?>"> -->
 <ul class="quiz_ul">
 
-<?php	$ii = 0;    foreach($ansResult as $ansResultRow ) {
+<?php	
+
+
+$ii = 0;
+$abc = 'a';    
+foreach($ansResult as $ansResultRow ) {
 	$ii++;
 ?>
 <li>
 	<label for="mark-<?= $i?>-<?= $ii;?>">
 		<span class="span1">
-			<input type="radio" id="mark-<?= $i?>-<?= $ii;?>" data-ans="<?= $ansResultRow -> id; ?>" name="mark-<?= $i;?>" value="<?= $ansResultRow -> mark; ?>">
+<input type="radio" id="Ans-<?= $i?><?= $ii;?>" data-ans="<?= $ansResultRow -> id; ?>" name="ans[<?= $i;?>]" value="<?= $i?><?= $abc;?>-q<?= $row -> id?>-an<?= $ansResultRow -> id; ?>">
 		</span> 
 		<span class="span2"><?= $ansResultRow->answer; ?></span>
 	</label>
 </li>
 <?php
+
+$abc++;
 	    }
 	    ?>
 
@@ -400,36 +493,12 @@ $ansResult = $wpdb->get_results($ans);
 
 <br>
 <div class="tablez" id="qResult-table" style="display: none">
-<a target="_blank" href="<?php echo get_permalink(); ?>?downloadExcel" >Download from here</a>
+<button type="submit" name="submit">Download from here</button>
 
 
 
-<?php 
-// $sql = "SELECT  * FROM $results where quiz_id = ".$quiz_id;
-
-// $result = $wpdb->get_results($sql);
-// $total_rows = count($result);
-
-// if ($total_rows> 0) {
-//     foreach($result as $row) {
- ?>
-		<!-- <div id="qResult-<?= $row -> result_id ?>" style="display: none;">
-			<h4>Results</h4>
-			<p><?= $row -> your_type ?></p>
-			<h4>Result Description</h4>
-			<p><?= $row -> type_description ?></p>
-			<h4>Offer</h4>
-			<p><?= $row -> offer ?></p>
-			<h4>Offer Description</h4>
-			<p><?= $row -> offer_description ?></p>
-		</div> -->
-
-<?php 
-// }
-// }
 
 
-?>
 </div>
 <?php 
 if(isset($attr['next_page_link']) && !empty($attr['next_page_link'])){
@@ -443,7 +512,9 @@ if(isset($attr['next_page_link']) && !empty($attr['next_page_link'])){
 
 
 </div>
+</div>  <!-- end of main container -->
 
+</form>
 	 	<script>
 
 
@@ -588,12 +659,7 @@ var array = $('input[type="radio"]:checked').map(function(){
     return count;
 }
 
-// which value occoured most
-// function mode(arr){
-//     return arr.sort((a,b) => arr.filter(v => v===a).length - arr.filter(v => v===b).length
-//     ).pop();
-// }
-	 		
+
 function mode(number){
     var count = 0;
     var sortedNumber = number.sort();
@@ -738,14 +804,6 @@ if(isset($attr['pattern']) && !empty($attr['pattern'])){
 
 
 	 	</script>
-</div>  <!-- end of main container -->
-
-
-
-
-
-
-
 
 	<?php
 }

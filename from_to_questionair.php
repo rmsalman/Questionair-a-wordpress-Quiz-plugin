@@ -77,7 +77,7 @@ function create_form_to_questionair_tables () {
 	  `quiz_id` int(200) NOT NULL,
 	  `questions` varchar(250) NOT NULL,
 	  `answers` varchar(250) NOT NULL,
-	  `quiz_result` INT(222) NOT NULL,
+	  `quiz_result` varchar(222) NOT NULL,
 	  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	  `updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
 	   PRIMARY KEY (`id`)
