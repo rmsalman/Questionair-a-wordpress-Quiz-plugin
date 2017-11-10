@@ -6,7 +6,7 @@ session_start();
 
 if(isset($_SESSION['ans']) && !empty($_SESSION['ans'])){
 	header("Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, charset=utf-8;");
-	header("Content-Disposition: attachment; filename=" . 'dsf.xls');
+	header("Content-Disposition: attachment; filename=" . 'excel-'.date('y-m-d ms').'.xls');
   ?>
 <table border="1" cellpadding="5" cellspacing="0" width="100%" style="text-align: left;">
   <tbody>
@@ -103,32 +103,16 @@ foreach ($_SESSION['ans'] as $key => $value) {
 
 <?php
 $_SESSION['ans'] = '';
-
-
-
-
 ?>
+
+
 <?php
+
 exit();
-?>
-
-<script>
-// self.location = "<?php echo  get_permalink(); ?>";	
-//     var redirectWindow = window.open('<?php echo  get_permalink(); ?>', '_blank');
-//     redirectWindow.location;     	
-
-// window.location.replace("<?php echo  get_permalink(); ?>`");
-</script>
-
-
-
-<?php
-
+wp_die();
 }
 
 ?>
-
-
 
 
 
@@ -162,7 +146,14 @@ if(isset($_POST['ans']) && !empty($_POST['ans'])){
 	$quiz_id = $_POST['quiz_id'];
 
 
-$user_id = $current_user->data->id;
+
+// echo '<pre>';
+// print_r($current_user->data->ID);
+// echo '</pre>';
+// exit;
+
+
+$user_id = $current_user->data->ID;
 
 	$wpdb->query("INSERT INTO $user_answers 
 					(`user_id`,`questions`, `quiz_id`, `answers`, `quiz_result`) 
@@ -406,7 +397,103 @@ if (count($result) > 0) {
 }else {
 	die('no quiz here');
 }
+?>
 
+
+
+
+ <!--  <tr>
+      <th style="text-align: left;">Year Taken</th>
+      <td>2017</td>
+    </tr>
+    <tr>
+      <th style="text-align: left;">Year Born</th>
+      <td>1968</td>
+    </tr>
+    
+    <tr>
+      <th style="text-align: left;">Company:</th>
+      <td>Centrepoint Solutions Inc.</td>
+    </tr>
+    <tr>
+
+
+
+    </tr>
+    <tr>
+      <th style="text-align: left;">State, Province, Prefecture, etc.:</th>
+      <td>BC</td>
+    </tr>
+    <tr>
+      <th style="text-align: left;"> </th>
+      <td>Metrotown</td>
+    </tr> -->
+
+
+    <tr>
+      <th style="text-align: left;">:  </th>
+      <td>BC</td>
+    </tr>
+    <tr>
+      <th style="text-align: left;"> </th>
+      <td>North Delta </td>
+    </tr>
+    <tr>
+      <th style="text-align: left;"> </th>
+      <td>M</td>
+    </tr>
+    <tr>
+      <th style="text-align: left;">What was your first Language: </th>
+      <td>English</td>
+    </tr>
+    <tr>
+      <th style="text-align: left;">Country Today </th>
+      <td>Canada</td>
+<div class="extra_fields">
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Year Taken 31/12/2017" name="year_taken">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Year Born 31/12/2017" name="year_born">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Company" name="company">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Industry" name="industry">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Years of Post-secondary education attained" name="year_post_sec">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Years in current position" name="year_position">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Type of position" name="type_pos">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Number of people directly supervised/managed:" name="num_people">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Country from the Ages 5 - 10:" name="country_age">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="State, Province, Prefecture, etc." name="state">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Primary Neighbourhood you were in from Ages 5 - 10:" name="primary">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Gender - M, F, X " name="gender">
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" placeholder="Primary Neighbourhood Today" name="company">
+	</div>
+</div>
+
+
+
+<?php
 
 $sql = "SELECT  q.question , q.id FROM $questions q where quiz_id = ".$quiz_id;
 $result = $wpdb->get_results($sql);
@@ -419,54 +506,54 @@ if ($total_rows > 0) {
 $i++;
 ?>
 <div class="quiz_q_div" id="question-<?= $i; ?>" style="display: <?php  if($i >= 2){echo 'none'; }?>">
-<span class="introf intof_q">Question: <?= $i; ?></span>
-<h2 class="quiz_q"><?= $row->question; ?></h2>
-<span class="introf intof_q">Answer: <?= $i; ?></span>
+	<span class="introf intof_q">Question: <?= $i; ?></span>
+	<h2 class="quiz_q"><?= $row->question; ?></h2>
+	<span class="introf intof_q">Answer: <?= $i; ?></span>
 
-<?php
-	$ans = "SELECT  a.answer , a.id, a.mark FROM $answers a where a.q_id = ". $row -> id;
-$ansResult = $wpdb->get_results($ans);
-?>
+	<?php
+		$ans = "SELECT  a.answer , a.id, a.mark FROM $answers a where a.q_id = ". $row -> id;
+	$ansResult = $wpdb->get_results($ans);
+	?>
 
-<input type="hidden" name="quiz_id" value="<?= $quiz_id ?>">
-<!-- <input type="hidden" name="ques_id" value="<?= $row -> id; ?>"> -->
-<ul class="quiz_ul">
+	<input type="hidden" name="quiz_id" value="<?= $quiz_id ?>">
+	<!-- <input type="hidden" name="ques_id" value="<?= $row -> id; ?>"> -->
+	<ul class="quiz_ul">
 
-<?php	
+	<?php	
 
 
-$ii = 0;
-$abc = 'a';    
-foreach($ansResult as $ansResultRow ) {
-	$ii++;
-?>
-<li>
-	<label for="mark-<?= $i?>-<?= $ii;?>">
-		<span class="span1">
-<input type="radio" id="Ans-<?= $i?><?= $ii;?>" data-ans="<?= $ansResultRow -> id; ?>" name="ans[<?= $i;?>]" value="<?= $i?><?= $abc;?>-q<?= $row -> id?>-an<?= $ansResultRow -> id; ?>">
-		</span> 
-		<span class="span2"><?= $ansResultRow->answer; ?></span>
-	</label>
-</li>
-<?php
+	$ii = 0;
+	$abc = 'a';    
+	foreach($ansResult as $ansResultRow ) {
+		$ii++;
+	?>
+	<li>
+		<label for="mark-<?= $i?>-<?= $ii;?>">
+			<span class="span1">
+	<input type="radio" id="Ans-<?= $i?><?= $ii;?>" data-ans="<?= $ansResultRow -> id; ?>" name="ans[<?= $i;?>]" value="<?= $i?><?= $abc;?>-<?= $row -> id?>-<?= $ansResultRow -> id; ?>">
+			</span> 
+			<span class="span2"><?= $ansResultRow->answer; ?></span>
+		</label>
+	</li>
+	<?php
 
-$abc++;
-	    }
-	    ?>
+	$abc++;
+		    }
+		    ?>
 
-	    </ul>
-	    <?php 
-	if($i !== $total_rows){
-?>
-	    <span class="btn-two q-next">Next</span>
-<?php
-	}else{
- ?>
-
-	    <span class="btn-two q-nextz">Next</span>
-<?php 
-	}
+		    </ul>
+		    <?php 
+		if($i !== $total_rows){
+	?>
+		    <span class="btn-two q-next">Next</span>
+	<?php
+		}else{
 	 ?>
+
+		    <span class="btn-two q-nextz">Next</span>
+	<?php 
+		}
+		 ?>
 	    </div>
 
 	    <?php

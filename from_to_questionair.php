@@ -105,22 +105,22 @@ function create_form_to_questionair_tables () {
 						'dashicons-clipboard', 
 						'90');
 
-	// add_submenu_page( 'formQuestionair', 
-	// 					'Add/Edit', 
-	// 					'Add/Edit',
-	// 				    'manage_options', 
-	// 				    'formQuestionair'
-	// 			    );
-	// add_submenu_page( 'formQuestionair', 
-	// 					'User Answers', 
-	// 					'User Answers',
-	// 				    'manage_options', 
-	// 				    'form_to_questionair-users',
-	// 				    'form_to_questionair_users'
-	// 				  );
+	add_submenu_page( 'formQuestionair', 
+						'Add/Edit', 
+						'Add/Edit',
+					    'manage_options', 
+					    'formQuestionair'
+				    );
+	add_submenu_page( 'formQuestionair', 
+						'User Answers', 
+						'User Answers',
+					    'manage_options', 
+					    'form_to_questionair-users',
+					    'form_to_questionair__user'
+					  );
 }
 
-function form_to_questionair_users() {
+function form_to_questionair__user() {
 	// including main user file
 	include_once( plugin_dir_path( __FILE__ ) . '/form_to_questionair_users.php' );
 
@@ -144,10 +144,12 @@ function form_to_questionair_settings() {
 	// add quiz query
 	if(isset($_POST['quiz']) && !empty($_POST)){
 		unset($_POST['quiz']);
-		global $wpdb;
+		
+				global $wpdb;
 		$quizes = $wpdb->prefix . 'quizes';
-	$name = $_POST['name'];
+	// $name = $_POST['name'];
 	$title = $_POST['title'];
+
 	$description = $_POST['description'];
 		$wpdb->query("INSERT INTO $quizes 
 					(`name`, `title`, `description`) 
@@ -231,7 +233,7 @@ function form_to_questionair_settings() {
 
 	if(isset($_POST['edit_quiz'])){
 		$quizes = $wpdb->prefix . 'quizes'; 
-		$name = $_POST['name'];
+		// $name = $_POST['name'];
 		$description = $_POST['description'];
 		$title = $_POST['title'];
 		$id = $_POST['id'];
@@ -330,13 +332,13 @@ function form_to_questionair_settings() {
 
 	<form action="<?= admin_url(); ?>?page=formQuestionair" method="POST">
 		
-	  <div class="form-group">
+	  <!-- <div class="form-group">
 	    <label for="name">Name of Questionair</label>
 		<input type="text" class="form-control" name="name" id="name">
-		</div>
+		</div> -->
 	  <div class="form-group">
 		<label for="title">Title</label>
-		<input type="text" class="form-control" name="title" id="title">
+		<input type="text" required="required" class="form-control" name="title" id="title">
 		</div>
 	  <div class="form-group">
 		<label for="description">Description</label>
@@ -363,7 +365,7 @@ function form_to_questionair_settings() {
 					Short Code
 				</th>
 				<th>
-					Name
+					Title
 				</th>
 				<th>
 					Description
@@ -379,7 +381,7 @@ function form_to_questionair_settings() {
 	    	?>
 			<tr>
 				<td>[formQuestion  questionair="<?= $result->id; ?>"]</td>
-				<td><?= $result->name; ?></td>
+				<td><?= $result->title; ?></td>
 				<td><?= $result->description; ?></td>
 				<td>
 					<a class="btn btn-default" href="<?= admin_url(); ?>?page=formQuestionair&add_qs=<?= $result->id; ?>&hide_quiz=1">Add MCQs</a>
@@ -410,10 +412,10 @@ function form_to_questionair_settings() {
 
 	<form action="<?= admin_url(); ?>?page=formQuestionair" method="POST">
 		
-	  <div class="form-group">
+	<!--   <div class="form-group">
 	  <label for="name">Name of Questionair</label>
 		<input type="text" class="form-control" name="name" id="name">
-		</div>
+		</div> -->
 	  <div class="form-group">
 		<label for="title">Title</label>
 		<input type="text" class="form-control" name="title" id="title">

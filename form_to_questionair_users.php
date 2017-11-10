@@ -54,6 +54,7 @@ $sql_user_answers = "SELECT DISTINCT user_id FROM $user_answers";
 // $sql_user_answers = "SELECT  DISTINCT user_id, count('user_id') as total_ids FROM $user_answers";
 $results = $wpdb->get_results($sql_user_answers);
 
+
 if(!empty($results)){
 
 	foreach( $results as $result ) {
@@ -66,8 +67,8 @@ if($result->total_ids !== '0' ) {
 				<td><?= $result->user_id ?></td>
 				<td><?= $user->data->user_nicename ?></td>
 				<td>
-				<a class="btn btn-primary" href="<?= admin_url(); ?>admin.php?page=colorQuiz-users&hide_users&u_id=<?= $result->user_id; ?>">See Quizes</a>
-				<a class="btn btn-danger" href="<?= admin_url(); ?>admin.php?page=colorQuiz-users&delete_record=<?= $result->user_id; ?>">Delete Record</a>
+				<a class="btn btn-primary" href="<?= admin_url(); ?>admin.php?page=form_to_questionair-users&hide_users&u_id=<?= $result->user_id; ?>">See Quizes</a>
+				<a class="btn btn-danger" href="<?= admin_url(); ?>admin.php?page=form_to_questionair-users&delete_record=<?= $result->user_id; ?>">Delete Record</a>
 				</td>
 			</tr>
 
@@ -109,10 +110,9 @@ if($result->total_ids !== '0' ) {
 
 
 <?php 
-if(isset($_GET['u_id']) && !empty($_GET['u_id'])){
+if(isset($_GET['u_id'])){
 	$u_id = $_GET['u_id'];
 ?>
-
  <div>
  <?php 
 	$user = get_user_by( 'id', $u_id );
@@ -121,12 +121,9 @@ if(isset($_GET['u_id']) && !empty($_GET['u_id'])){
   	<table class="table table-bordered table-hover"  >
 		<thead>
 			<tr>
-				<th>Date&Time</th>
-				<th>Quiz Name</th>
-				<th>Quiz Title</th>
-				<th>Total Quiz</th>
-				<th>Result</th>
-				<th>Offer</th>
+				<!-- <th>Quiz Name</th> -->
+				<th>Questionair Title</th>
+				<th>Total Questionair</th>
 				<th>Actions</th>
 			</tr>
 		</thead>
@@ -134,7 +131,7 @@ if(isset($_GET['u_id']) && !empty($_GET['u_id'])){
 <?php
 
 $sql_users_answers = "
-SELECT count(user_id) as user_count , ua.created as u_created,  ua.*, q.* 
+SELECT count(user_id) as user_count , ua.*, q.* 
 FROM $user_answers ua 
 JOIN $quizes as q 
 on ua.quiz_id = q.id 
@@ -155,14 +152,11 @@ if(!empty($resultss)){
 if($result->total_ids !== '0' ) {
  ?>
 			<tr>
-				<td><?= date_format(date_create($result->u_created),"M-d-Y H:i:s:a");?></td>
-				<td><?= $result->name; ?></td>
+				<!-- <td><?= $result->name; ?></td> -->
  				<td><?= $result->title; ?></td>
  				<td><?= $result->user_count; ?></td>
- 				<td><?= $result->your_type; ?></td>
- 				<td><?= $result->offer; ?></td>
 				<td>
-				<a class="btn btn-primary" href="<?= admin_url(); ?>admin.php?page=colorQuiz-users&hide_users&q_id=<?= $result->quiz_id; ?>&user_id=<?= $result->user_id; ?>">Detail</a>
+				<a class="btn btn-primary" href="<?= admin_url(); ?>admin.php?page=form_to_questionair-users&hide_users&q_id=<?= $result->quiz_id; ?>&user_id=<?= $result->user_id; ?>">Detail</a>
 			</tr>
 
 <?php 
@@ -197,25 +191,12 @@ if($result->total_ids !== '0' ) {
 ?>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <?php 
 
 
 //  Get User Data
 
-if(isset($_GET['user_id']) && !empty($_GET['user_id']) && !empty($_GET['q_id'])){
+if(isset($_GET['user_id']) && !empty($_GET['q_id'])){
  $user_id = $_GET['user_id'];
  $quiz_id = $_GET['q_id'];
  ?>
@@ -234,20 +215,27 @@ FROM $user_answers ua
 JOIN $results_table as r
 on ua.quiz_result = r.result_id and ua.quiz_id = r.quiz_id
 
-where ua.user_id = $user_id AND ua.quiz_id = $quiz_id";
+where ua.user_id = '$user_id' AND ua.quiz_id = '$quiz_id'";
 
 $results = $wpdb->get_results($sql_user_answers);
 
 if(!empty($results)){
+
+
 	foreach( $results as $result ) {
 
 
+$arr = ['ans'=>$result->quiz_result];
+
+?>
+
+<?php
 $questions_num = $result->questions;
-$questionsArray = explode(',', $questions_num);
+$questionsArray = explode(', ', $questions_num);
 $total_questions = count($questionsArray);
 // print_r($questionsArray);
 $answers_num = $result->answers;
-$answersArray = explode(',', $answers_num);
+$answersArray = explode(', ', $answers_num);
 $total_answers = count($answersArray);
 // print_r($answersArray);
 
@@ -256,24 +244,38 @@ $quizes_results = $wpdb->get_results($sql_quizes);
  ?>
 <h3><span class="dark">Quiz Name:</span>  <?= $quizes_results[0]->name?></h3>
 <h3><span class="dark">Quiz Title:</span> <?= $quizes_results[0]->title?></h3>
-<h3><span class="dark">Quiz Result:</span>  <?= $result->your_type?></h3>
-<h3><span class="dark">Quiz Offer:</span> <?= $result->offer?></h3>
+
+<table width="600" border="1" cellpadding="5" cellspacing="0">
+  <tbody>
+<?php 
+
+	foreach ($arr as $key => $value) {
+			$arr = explode("-", $value);
+	?>
+	  	<tr>
+	  		<td><?php echo $arr[0]; ?></td>
+	  	</tr>
+	  
+	<?php 
+	 }
+	 ?>
+  </tbody>
+</table>
+<!-- <h3><span class="dark">Quiz Result:</span>  <?= $result->your_type?></h3> -->
+<!-- <h3><span class="dark">Quiz Offer:</span> <?= $result->offer?></h3> -->
 <br>
 <?php 
 
-for ($x = 0; $x <= $total_questions -1 ; $x++) {
+for ($x = 0; $x <= $total_questions -2 ; $x++) {
 
 	$sql_questions = "SELECT * FROM $questions where id = ".$questionsArray[$x];
 	$questions_results = $wpdb->get_results($sql_questions);
 	$q_n =$questions_results[0]->id;
 	$sql_answers = "SELECT * FROM $answers where q_id = '$q_n'  AND id = ".$answersArray[$x];
 	$answers_results = $wpdb->get_results($sql_answers);
-// echo $sql_answers;
-		echo '<h5 class="qs"><span>Q:</span> ' . $questions_results[0]->question . '</h5>';
-		echo '<p class="ans"><span class="dark">Ans: </span>' . $answers_results[0]->answer . '</p><br>';
 
-   // $wpdb->show_errors(); 
-   // $wpdb->print_error();
+	echo '<h5 class="qs"><span>Q:</span> ' . $questions_results[0]->question . '</h5>';
+	echo '<p class="ans"><span class="dark">Ans: </span>' . $answers_results[0]->answer . '</p><br>';
 } 
 
  ?>
